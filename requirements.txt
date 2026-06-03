@@ -1,0 +1,9 @@
+duckdb
+pandas
+pyarrow
+streamlit
+sqlglot
+rapidfuzz
+python-dotenv
+requests
+nfl_data_py

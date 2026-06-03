@@ -1,10 +1,24 @@
+import sys
 from pathlib import Path
+
+# Streamlit Cloud runs app/main.py with cwd=sys.path[0]=app/, so `python` package is not found.
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from app.bootstrap import ensure_warehouse, setup_path, warehouse_status_message
+
+setup_path()
 
 import streamlit as st
 
 from python.db import PROJECT_ROOT, query
 
+ensure_warehouse()
+
 DOCS_DIR = PROJECT_ROOT / "docs"
+
+_missing_warehouse_msg = warehouse_status_message()
 
 
 def load_doc(filename: str) -> str:
@@ -21,6 +35,10 @@ st.caption(
     "Development = draft outcome vs national baseline for the same star rating. "
     "Absolute draft rate shown for context."
 )
+
+if _missing_warehouse_msg:
+    st.error(_missing_warehouse_msg)
+    st.stop()
 
 tab_leaderboard, tab_baselines, tab_methodology = st.tabs(
     ["Leaderboard", "National baselines", "Methodology"]

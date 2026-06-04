@@ -17,6 +17,10 @@ CLASS_YEAR_END = 2023
 DRAFT_YEAR_START = 2016
 DRAFT_YEAR_END = 2024
 
+# Transfer portal era (CFBD /player/portal).
+TRANSFER_YEAR_START = 2018
+TRANSFER_YEAR_END = 2024
+
 CFBD_BASE_URL = "https://api.collegefootballdata.com"
 CFBD_API_KEY_ENV = "COLLEGE_FOOTBALL_DATA_API_KEY"
 

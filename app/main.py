@@ -45,9 +45,19 @@ tab_leaderboard, tab_baselines, tab_methodology = st.tabs(
 )
 
 
+PROGRAM_YEAR_TABLES = {
+    "Signing school (HS commit)": "mart_program_year_signing",
+    "Development school (last portal destination)": "mart_program_year_development",
+}
+
+
 @st.cache_data
-def load_program_year(min_recruits: int, recruiting_years: tuple[int, ...]):
-    sql = """
+def load_program_year(
+    min_recruits: int,
+    recruiting_years: tuple[int, ...],
+    table_name: str,
+):
+    sql = f"""
         SELECT
             program_key,
             class_year,
@@ -57,10 +67,11 @@ def load_program_year(min_recruits: int, recruiting_years: tuple[int, ...]):
             program_development_index,
             total_value_added,
             positive_development_rate,
+            transfer_player_rate,
             avg_draft_outcome_score,
             avg_expected_outcome_score,
             outcome_vs_expected_gap
-        FROM mart_program_year
+        FROM {table_name}
         WHERE recruits >= $min_recruits
     """
     params: dict = {"min_recruits": min_recruits}
@@ -86,9 +97,16 @@ def load_baselines():
 
 with tab_leaderboard:
     st.subheader("Program development leaderboard")
+    attribution_label = st.radio(
+        "Credit development to",
+        options=list(PROGRAM_YEAR_TABLES.keys()),
+        horizontal=True,
+    )
+    table_name = PROGRAM_YEAR_TABLES[attribution_label]
     st.markdown(
         "**Relative:** `program_development_index` (avg outcome vs national baseline by star).  \n"
-        "**Absolute:** `draft_conversion_rate`, `avg_draft_outcome_score`."
+        "**Absolute:** `draft_conversion_rate`, `avg_draft_outcome_score`.  \n"
+        "**Signing** = HS commit school · **Development** = last transfer destination (portal era)."
     )
     recruiting_year = st.multiselect(
         "Recruiting year (empty = all years)",
@@ -96,7 +114,7 @@ with tab_leaderboard:
     )
     min_recruits = st.slider("Minimum recruits per class year", 1, 25, 5)
     try:
-        df = load_program_year(min_recruits, tuple(recruiting_year))
+        df = load_program_year(min_recruits, tuple(recruiting_year), table_name)
         st.dataframe(df, use_container_width=True, hide_index=True)
         st.caption(f"{len(df):,} program-class rows")
     except FileNotFoundError as exc:

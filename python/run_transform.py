@@ -19,6 +19,8 @@ def main() -> None:
         Path("models/marts/mart_player_outcomes.sql"),
         Path("models/marts/mart_star_baselines.sql"),
         Path("models/marts/mart_player_development.sql"),
+        Path("models/marts/mart_program_year_signing.sql"),
+        Path("models/marts/mart_program_year_development.sql"),
         Path("models/marts/mart_program_year.sql"),
     ]
 

@@ -1,6 +1,8 @@
 create or replace table mart_player_development as
 select
     o.player_key,
+    o.signing_program_key,
+    o.development_program_key,
     o.program_key,
     o.class_year,
     o.recruit_player_name,
@@ -16,6 +18,9 @@ select
     b.expected_draft_rate,
     round(o.draft_outcome_score - b.expected_outcome_score, 4) as player_development_score,
     o.drafted_flag,
+    o.is_transfer,
+    o.transfer_count,
+    o.attribution_rule,
     case
         when o.draft_outcome_score > b.expected_outcome_score then 1
         else 0

@@ -56,3 +56,46 @@ def fetch_recruits(year: int) -> pd.DataFrame:
     out = out.dropna(subset=["player_name", "class_year"])
     out = out[out["program"].notna() & (out["program"].str.len() > 0)]
     return out
+
+
+def fetch_transfers(year: int) -> pd.DataFrame:
+    rows = get_json("/player/portal", {"year": year})
+    if not rows:
+        return pd.DataFrame(
+            columns=[
+                "season",
+                "first_name",
+                "last_name",
+                "position",
+                "origin",
+                "destination",
+                "transfer_date",
+                "stars",
+            ]
+        )
+
+    df = pd.DataFrame(rows)
+
+    def col(*names: str) -> pd.Series:
+        for name in names:
+            if name in df.columns:
+                return df[name]
+        return pd.Series(dtype="object")
+
+    first = col("firstName", "first_name")
+    last = col("lastName", "last_name")
+    out = pd.DataFrame(
+        {
+            "season": pd.to_numeric(col("season", "year"), errors="coerce").astype("Int64"),
+            "first_name": first.astype("string"),
+            "last_name": last.astype("string"),
+            "position": col("position").astype("string"),
+            "origin": col("origin").astype("string"),
+            "destination": col("destination").astype("string"),
+            "transfer_date": col("transferDate", "transfer_date"),
+            "stars": pd.to_numeric(col("stars"), errors="coerce").astype("Int64"),
+        }
+    )
+    out = out.dropna(subset=["first_name", "last_name", "season"])
+    out = out[out["destination"].notna() & (out["destination"].str.len() > 0)]
+    return out
